@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<title>Dat Peers SDK Demo</title>
+<script src="https://bundle.run/dat-sdk@1/auto.js"></script>
+<script src="https://bundle.run/dat-peers@1.0.0?name=DatPeers"></script>
+<script>
+  // This will be used when you're not loaded from a dat archive
+  const PEER_URL = 'dat://0a9e202b8055721bd2bc93b3c9bbc03efdbda9cfee91f01a123fdeaadeba303e/'
+
+  if(window.datPeers) {
+    // Must be in Beaker, who cares whatever
+  } else {
+    const {DatArchive} = window.datSdk
+    window.waitForArchiveToLoad = (async() => {
+      const archive = await DatArchive.load(PEER_URL, {
+        extensions:  DatPeers.EXTENSIONS
+      })
+      const peers = new DatPeers(archive._archive)
+
+      window.datPeers = peers
+    })()
+  }
+</script>
+<script>
+  async function run() {
+    await window.waitForArchiveToLoad
+
+    datPeers.addEventListener('message', console.log)
+    window.chat = (...args) => {
+      datPeers.broadcast(args)
+    }
+  }
+
+  run()
+</script>
